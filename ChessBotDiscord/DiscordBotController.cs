@@ -17,24 +17,15 @@ namespace ChessBotDiscord
 
         private DiscordSocketClient? client;
         private readonly string botToken;
-
-        private readonly IChessGameFactory gameFactory;
-        private readonly IChessAI chessAI;
         private bool initialized = false;
 
+        private readonly IChessGamesController chessGamesController;
 
-        private readonly object locker = new object();
 
-
-        private IChessGame curentGame;
-        private bool isPlayerWhite = true;
-
-        public DiscordBotController(string botToken, IChessGameFactory gameFactory, IChessAI chessAI)
+        public DiscordBotController(string botToken, IChessGamesController chessGamesController)
         {
             this.botToken = botToken;
-            this.gameFactory = gameFactory;
-            this.chessAI = chessAI;
-            curentGame = gameFactory.CreateGame();
+            this.chessGamesController = chessGamesController;
         }
 
         /// <summary>
@@ -52,7 +43,7 @@ namespace ChessBotDiscord
         {
 
             client = new DiscordSocketClient(new DiscordSocketConfig() { GatewayIntents = GatewayIntents.AllUnprivileged ^ GatewayIntents.GuildInvites ^ GatewayIntents.GuildScheduledEvents }); ;
-
+            
 
             client.Log += LogBotOutput;
             client.Ready += InitializeCommands;
@@ -98,7 +89,6 @@ namespace ChessBotDiscord
                     Task.Run(() => MakeMove(command));
                     break;
             }
-
             return Task.CompletedTask;
         }
 
@@ -108,44 +98,45 @@ namespace ChessBotDiscord
         /// </summary>
         async Task MakeMove(SocketSlashCommand command)
         {
-            string gameTextRepresentation = "";
-
             await command.DeferAsync();
 
-            IChessGame.GameState gameState = IChessGame.GameState.InProgress;
 
-            lock (locker)
+            string playerMove = (string)(command.Data.Options.First(opt => opt.Name == "move").Value);
+            var result = chessGamesController.MakeMove(command.ChannelId.ToString()!, playerMove, out IChessGame? gameState);
+
+            if (result == IChessGamesController.MoveRequestResult.InternalError)
             {
-                string playerMove = (string)(command.Data.Options.First(opt => opt.Name == "move").Value);
-
-                if (!(isPlayerWhite ^ curentGame.IsWhiteMove()))
+                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Error =(");
+            }
+            else if (result == IChessGamesController.MoveRequestResult.WrongFormat)
+            {
+                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Wrong move format");
+            }
+            else if (result == IChessGamesController.MoveRequestResult.GameNotFound)
+            {
+                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Game not found");
+            }
+            else if (result == IChessGamesController.MoveRequestResult.IllegalMove)
+            {
+                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "This move is illegal");
+            }
+            else if (result == IChessGamesController.MoveRequestResult.GameAlreadyEnded)
+            {
+                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "This game is already ended");
+            }
+            else if (result == IChessGamesController.MoveRequestResult.Success)
+            {
+                if (gameState!.GetCurrentState() == IChessGame.GameState.InProgress)
                 {
-                    curentGame.MakeMove(playerMove);
-
-                    if (curentGame.GetCurrentState() == IChessGame.GameState.InProgress)
-                    {
-                        var result = chessAI.GetNextMove(curentGame.GetFen(), out string? aiMove);
-
-                        if (!result)
-                            throw new InvalidOperationException("Chess AI does not work correctly");
-
-                        curentGame.MakeMove(aiMove!);
-                    }
+                    await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Make your move!\n" + $"```{gameState!.ToAscii()}```");
                 }
-
-
-                gameTextRepresentation = curentGame.ToAscii();
-                gameState = curentGame.GetCurrentState();
+                else
+                {
+                    await command.ModifyOriginalResponseAsync((settings) => settings.Content = "It is the end\n" + gameState!.ToAscii());
+                }
             }
 
-            if (gameState == IChessGame.GameState.InProgress)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Make your move!\n" + $"```{gameTextRepresentation}```");
-            }
-            else
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = "It is the end\n" + gameState.ToString());
-            }
+
 
         }
 
@@ -154,29 +145,12 @@ namespace ChessBotDiscord
         /// </summary>
         async Task NewGame(SocketSlashCommand command)
         {
-            string gameTextRepresentation = "";
-
             await command.DeferAsync();
 
-            lock (locker)
-            {
-                curentGame = gameFactory.CreateGame();
+            var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
+            var gameState = chessGamesController.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
 
-                var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
-
-                if (!isPlayerWhite)
-                {
-                    var result = chessAI.GetNextMove(curentGame.GetFen(), out string? move);
-
-                    if (!result)
-                        throw new InvalidOperationException("Chess AI does not work correctly");
-
-                    curentGame.MakeMove(move!);
-                }
-
-
-                gameTextRepresentation = curentGame.ToAscii();
-            }
+            string gameTextRepresentation = gameState.ToAscii();
 
             await command.ModifyOriginalResponseAsync((settings) => settings.Content = "New game started!\n" + $"```{gameTextRepresentation}```");
         }

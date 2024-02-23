@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGameRepresentation", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockfishWrapper", "StockfishWrapper\StockfishWrapper.csproj", "{A1644C03-D879-48B1-AB46-304B405AD3C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGameControllerImplementation", "ChessGameControllerImplementation\ChessGameControllerImplementation.csproj", "{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{A1644C03-D879-48B1-AB46-304B405AD3C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1644C03-D879-48B1-AB46-304B405AD3C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1644C03-D879-48B1-AB46-304B405AD3C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

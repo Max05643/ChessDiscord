@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ChessDefinitions
 {
+
     /// <summary>
     /// Represents a chess game
     /// </summary>
@@ -36,5 +37,10 @@ namespace ChessDefinitions
         GameState GetCurrentState();
 
         string ToAscii();
+
+        /// <summary>
+        /// Provides a clone of current game state 
+        /// </summary>
+        IChessGame Clone();
     }
 }

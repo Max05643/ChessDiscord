@@ -53,7 +53,18 @@ namespace ChessGameRepresentation
 
         public bool MakeMove(string move)
         {
-            if (board.IsValidMove(move))
+            bool isValid = true;
+            try
+            {
+                isValid = board.IsValidMove(move);
+
+            }
+            catch (ChessException)
+            {
+                return false;
+            }
+
+            if (isValid)
             {
                 board.Move(move);
                 return true;
@@ -67,6 +78,13 @@ namespace ChessGameRepresentation
         public string ToAscii()
         {
             return board.ToAscii();
+        }
+
+        IChessGame IChessGame.Clone()
+        {
+            var game = new ChessGameState();
+            game.LoadFromFen(board.ToFen());
+            return game;
         }
     }
 

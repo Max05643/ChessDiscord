@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessDefinitions\ChessDefinitions.csproj" />
+    <ProjectReference Include="..\ChessGameControllerImplementation\ChessGameControllerImplementation.csproj" />
     <ProjectReference Include="..\ChessGameRepresentation\ChessGameRepresentation.csproj" />
     <ProjectReference Include="..\StockfishWrapper\StockfishWrapper.csproj" />
   </ItemGroup>
