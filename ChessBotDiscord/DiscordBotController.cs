@@ -20,12 +20,13 @@ namespace ChessBotDiscord
         private bool initialized = false;
 
         private readonly IChessGamesController chessGamesController;
+        private readonly IBoardVisualizer boardVisualizer;
 
-
-        public DiscordBotController(string botToken, IChessGamesController chessGamesController)
+        public DiscordBotController(string botToken, IChessGamesController chessGamesController, IBoardVisualizer boardVisualizer)
         {
             this.botToken = botToken;
             this.chessGamesController = chessGamesController;
+            this.boardVisualizer = boardVisualizer;
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace ChessBotDiscord
         {
 
             client = new DiscordSocketClient(new DiscordSocketConfig() { GatewayIntents = GatewayIntents.AllUnprivileged ^ GatewayIntents.GuildInvites ^ GatewayIntents.GuildScheduledEvents }); ;
-            
+
 
             client.Log += LogBotOutput;
             client.Ready += InitializeCommands;
@@ -101,6 +102,7 @@ namespace ChessBotDiscord
             await command.DeferAsync();
 
 
+
             string playerMove = (string)(command.Data.Options.First(opt => opt.Name == "move").Value);
             var result = chessGamesController.MakeMove(command.ChannelId.ToString()!, playerMove, out IChessGame? gameState);
 
@@ -126,13 +128,15 @@ namespace ChessBotDiscord
             }
             else if (result == IChessGamesController.MoveRequestResult.Success)
             {
+                var img = boardVisualizer.GameToUrl(gameState!);
+
                 if (gameState!.GetCurrentState() == IChessGame.GameState.InProgress)
                 {
-                    await command.ModifyOriginalResponseAsync((settings) => settings.Content = "Make your move!\n" + $"```{gameState!.ToAscii()}```");
+                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("Make your move").Build());
                 }
                 else
                 {
-                    await command.ModifyOriginalResponseAsync((settings) => settings.Content = "It is the end\n" + gameState!.ToAscii());
+                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("It is the end").Build());
                 }
             }
 
@@ -150,9 +154,11 @@ namespace ChessBotDiscord
             var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
             var gameState = chessGamesController.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
 
-            string gameTextRepresentation = gameState.ToAscii();
 
-            await command.ModifyOriginalResponseAsync((settings) => settings.Content = "New game started!\n" + $"```{gameTextRepresentation}```");
+            var img = boardVisualizer.GameToUrl(gameState);
+
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("New game started").Build());
+
         }
 
         Task LogBotOutput(LogMessage message)

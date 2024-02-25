@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BoardVisualizer\BoardVisualizer.csproj" />
     <ProjectReference Include="..\ChessDefinitions\ChessDefinitions.csproj" />
     <ProjectReference Include="..\ChessGameControllerImplementation\ChessGameControllerImplementation.csproj" />
     <ProjectReference Include="..\ChessGameRepresentation\ChessGameRepresentation.csproj" />

@@ -14,11 +14,11 @@ IChessAI stockFish = new StockfishWrapper.Stockfish(configuration["PathToStockFi
 IChessGameFactory gameFactory = new ChessGameStateFactory();
 IMoveValidator moveValidator = new MoveValidator();
 IChessGamesController chessGamesController = new ChessGameController(stockFish, gameFactory, moveValidator);
-
+IBoardVisualizer boardVisualizer = new BoardVisualizer.WebBoardVisualizer();
 
 
 var token = configuration["BotToken"]!;
-var bot = new DiscordBotController(token, chessGamesController);
+var bot = new DiscordBotController(token, chessGamesController, boardVisualizer);
 
 bot.Initialize();
 
