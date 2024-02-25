@@ -136,7 +136,22 @@ namespace ChessBotDiscord
                 }
                 else
                 {
-                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("It is the end").Build());
+                    string gameResultDesc = "";
+
+                    switch (gameState!.GetCurrentState())
+                    {
+                        case IChessGame.GameState.Stalemate:
+                            gameResultDesc = "Nobody was victorious. Indeed it's an endless loop of games.";
+                            break;
+                        case IChessGame.GameState.BlackWon:
+                            gameResultDesc = gameState!.IsPlayerWhite ? "Ha-ha. Loser." : "You won. Just how?!";
+                            break;
+                        case IChessGame.GameState.WhiteWon:
+                            gameResultDesc = !gameState!.IsPlayerWhite ? "Ha-ha. Loser." : "You won. Just how?!";
+                            break;
+                    }
+
+                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("It is the end").WithDescription(gameResultDesc).Build());
                 }
             }
 

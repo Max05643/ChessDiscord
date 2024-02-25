@@ -87,7 +87,7 @@ public class ChessGameController : IChessGamesController
 
     IChessGame IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite)
     {
-        var newGameState = gameFactory.CreateGame();
+        var newGameState = gameFactory.CreateGame(isPlayerWhite);
 
         if (!isPlayerWhite)
         {

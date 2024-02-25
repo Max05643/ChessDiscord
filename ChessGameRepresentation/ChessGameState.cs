@@ -10,12 +10,15 @@ namespace ChessGameRepresentation
     {
 
         private ChessBoard board;
+        private readonly bool isPlayerWhite;
 
-
-        public ChessGameState()
+        public ChessGameState(bool isPlayerWhite)
         {
             board = new ChessBoard();
+            this.isPlayerWhite = isPlayerWhite; 
         }
+
+        bool IChessGame.IsPlayerWhite => isPlayerWhite;
 
         public IChessGame.GameState GetCurrentState()
         {
@@ -82,7 +85,7 @@ namespace ChessGameRepresentation
 
         IChessGame IChessGame.Clone()
         {
-            var game = new ChessGameState();
+            var game = new ChessGameState(isPlayerWhite);
             game.LoadFromFen(board.ToFen());
             return game;
         }
@@ -90,9 +93,9 @@ namespace ChessGameRepresentation
 
     public class ChessGameStateFactory : IChessGameFactory
     {
-        IChessGame IChessGameFactory.CreateGame()
+        IChessGame IChessGameFactory.CreateGame(bool isPlayerWhite)
         {
-            return new ChessGameState();
+            return new ChessGameState(isPlayerWhite);
         }
     }
 }

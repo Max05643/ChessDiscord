@@ -11,6 +11,6 @@ namespace ChessDefinitions
     /// </summary>
     public interface IChessGameFactory
     {
-        IChessGame CreateGame();
+        IChessGame CreateGame(bool isPlayerWhite);
     }
 }

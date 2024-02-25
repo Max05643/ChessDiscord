@@ -33,6 +33,11 @@ namespace ChessDefinitions
         /// <returns>Whether move was possible and was made</returns>
         bool MakeMove(string move);
 
+        /// <summary>
+        /// Is player playing as white and AI as black?
+        /// </summary>
+        bool IsPlayerWhite { get; }
+
         bool IsWhiteMove();
         GameState GetCurrentState();
 
