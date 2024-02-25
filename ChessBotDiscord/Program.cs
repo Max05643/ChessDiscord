@@ -15,10 +15,10 @@ IChessGameFactory gameFactory = new ChessGameStateFactory();
 IMoveValidator moveValidator = new MoveValidator();
 IChessGamesController chessGamesController = new ChessGameController(stockFish, gameFactory, moveValidator);
 IBoardVisualizer boardVisualizer = new BoardVisualizer.WebBoardVisualizer();
-
+ILocalizationProvider localizationProvider = new ConfigLocalizationProvider(configuration);
 
 var token = configuration["BotToken"]!;
-var bot = new DiscordBotController(token, chessGamesController, boardVisualizer);
+var bot = new DiscordBotController(token, chessGamesController, boardVisualizer, localizationProvider);
 
 bot.Initialize();
 
