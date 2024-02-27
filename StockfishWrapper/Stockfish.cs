@@ -1,4 +1,5 @@
 ﻿using ChessDefinitions;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,12 @@ namespace StockfishWrapper
     {
 
         readonly string pathToExecutable;
-        readonly int moveTimeMSec;
+        const int moveTimeMSec = 100;
         const uint maxTries = 1000;
 
-        public Stockfish(string pathToExecutable, int moveTimeMSec)
+        public Stockfish(IConfiguration configuration)
         {
-            this.pathToExecutable = pathToExecutable;
-            this.moveTimeMSec = moveTimeMSec;
+            pathToExecutable = configuration["PathToStockFish"]!;
         }
 
 
