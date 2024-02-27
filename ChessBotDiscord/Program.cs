@@ -13,7 +13,8 @@ var configuration = new ConfigurationBuilder()
 IChessAI stockFish = new StockfishWrapper.Stockfish(configuration["PathToStockFish"]!, 100);
 IChessGameFactory gameFactory = new ChessGameStateFactory();
 IMoveValidator moveValidator = new MoveValidator();
-IChessGamesController chessGamesController = new ChessGameController(stockFish, gameFactory, moveValidator);
+IGamesStorage gamesStorage = new InMemoryGamesStorage();
+IChessGamesController chessGamesController = new ChessGameController(stockFish, gameFactory, moveValidator, gamesStorage);
 IBoardVisualizer boardVisualizer = new BoardVisualizer.WebBoardVisualizer();
 ILocalizationProvider localizationProvider = new ConfigLocalizationProvider(configuration);
 

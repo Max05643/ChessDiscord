@@ -9,75 +9,52 @@ namespace ChessGameControllerImplementation;
 public class ChessGameController : IChessGamesController
 {
 
-    /// <summary>
-    /// Represents a stored chess game
-    /// </summary>
-    class ChessGameEntry
-    {
-        public IChessGame GameState { get; set; }
-        
-        /// <summary>
-        /// Used for thread-safety
-        /// </summary>
-        public object Locker { get; set; } = new object();
-
-        public ChessGameEntry(IChessGame gameState)
-        {
-            GameState = gameState;
-        }
-    }
-
-
-    /// <summary>
-    /// Currently stored games
-    /// </summary>
-    readonly ConcurrentDictionary<string, ChessGameEntry> currentGames = new();
     readonly IChessAI chessAI;
     readonly IChessGameFactory gameFactory;
     readonly IMoveValidator moveValidator;
-    public ChessGameController(IChessAI chessAI, IChessGameFactory gameFactory, IMoveValidator moveValidator)
+    readonly IGamesStorage gamesStorage;
+
+    public ChessGameController(IChessAI chessAI, IChessGameFactory gameFactory, IMoveValidator moveValidator, IGamesStorage gamesStorage)
     {
         this.chessAI = chessAI;
         this.gameFactory = gameFactory;
         this.moveValidator = moveValidator;
+        this.gamesStorage = gamesStorage;
     }
 
     IChessGamesController.MoveRequestResult IChessGamesController.MakeMove(string gameId, string move, out IChessGame? currentGameState)
     {
         currentGameState = null;
+        using var gameHandler = gamesStorage.AcquireGame(gameId);
 
-        if (currentGames.TryGetValue(gameId, out ChessGameEntry? currentGameEntry))
+        if (gameHandler != null)
         {
-            lock (currentGameEntry.Locker)
+            currentGameState = gameHandler.Game.Clone();
+
+            if (!moveValidator.Validate(move))
             {
-
-                currentGameState = currentGameEntry.GameState.Clone();
-
-                if (!moveValidator.Validate(move))
-                {
-                    return IChessGamesController.MoveRequestResult.WrongFormat;
-                }
-                
-                if (currentGameEntry.GameState.GetCurrentState() != IChessGame.GameState.InProgress)
-                {
-                    return IChessGamesController.MoveRequestResult.GameAlreadyEnded;
-                }
-
-                if (currentGameEntry.GameState.MakeMove(move))
-                {
-                    chessAI.GetNextMove(currentGameEntry.GameState.GetFen(), out string? aiMove);
-                    currentGameEntry.GameState.MakeMove(aiMove!);
-
-
-                    currentGameState = currentGameEntry.GameState.Clone();
-                    return IChessGamesController.MoveRequestResult.Success;
-                }
-                else
-                {
-                    return IChessGamesController.MoveRequestResult.IllegalMove;
-                }
-
+                return IChessGamesController.MoveRequestResult.WrongFormat;
             }
+
+            if (gameHandler.Game.GetCurrentState() != IChessGame.GameState.InProgress)
+            {
+                return IChessGamesController.MoveRequestResult.GameAlreadyEnded;
+            }
+
+            if (gameHandler.Game.MakeMove(move))
+            {
+                chessAI.GetNextMove(gameHandler.Game.GetFen(), out string? aiMove);
+                gameHandler.Game.MakeMove(aiMove!);
+
+
+                currentGameState = gameHandler.Game.Clone();
+                return IChessGamesController.MoveRequestResult.Success;
+            }
+            else
+            {
+                return IChessGamesController.MoveRequestResult.IllegalMove;
+            }
+
         }
         else
         {
@@ -95,7 +72,7 @@ public class ChessGameController : IChessGamesController
             newGameState.MakeMove(aiMove!);
         }
 
-        currentGames.AddOrUpdate(gameId, new ChessGameEntry(newGameState), (gameId, oldVal) => new ChessGameEntry(newGameState));
+        gamesStorage.CreateGame(gameId, newGameState);
 
 
         return newGameState.Clone();
