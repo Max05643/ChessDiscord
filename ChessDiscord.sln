@@ -3,25 +3,28 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessBotDiscord", "ChessBotDiscord\ChessBotDiscord.csproj", "{7072F432-ADA5-40CC-8113-5D8C0F61F8E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessBotDiscord", "ChessBotDiscord\ChessBotDiscord.csproj", "{7072F432-ADA5-40CC-8113-5D8C0F61F8E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessDefinitions", "ChessDefinitions\ChessDefinitions.csproj", "{AE7D1F8F-A926-49C4-8F51-92AB04F3AA73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessDefinitions", "ChessDefinitions\ChessDefinitions.csproj", "{AE7D1F8F-A926-49C4-8F51-92AB04F3AA73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGameRepresentation", "ChessGameRepresentation\ChessGameRepresentation.csproj", "{FA3F79B2-B5EB-453C-9783-DF6D7A87EB93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessGameRepresentation", "ChessGameRepresentation\ChessGameRepresentation.csproj", "{FA3F79B2-B5EB-453C-9783-DF6D7A87EB93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockfishWrapper", "StockfishWrapper\StockfishWrapper.csproj", "{A1644C03-D879-48B1-AB46-304B405AD3C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockfishWrapper", "StockfishWrapper\StockfishWrapper.csproj", "{A1644C03-D879-48B1-AB46-304B405AD3C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGameControllerImplementation", "ChessGameControllerImplementation\ChessGameControllerImplementation.csproj", "{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessGameControllerImplementation", "ChessGameControllerImplementation\ChessGameControllerImplementation.csproj", "{69540E6D-2C05-4088-91EC-97AD5B7C9CDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardVisualizer", "BoardVisualizer\BoardVisualizer.csproj", "{CCC84D01-BA27-4B40-BBEB-5DEB1C32038F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoardVisualizer", "BoardVisualizer\BoardVisualizer.csproj", "{CCC84D01-BA27-4B40-BBEB-5DEB1C32038F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3006C4D3-87B0-4881-A6DC-84D5B4E9DBBE}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		Dockerfile.txt = Dockerfile.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7072F432-ADA5-40CC-8113-5D8C0F61F8E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -48,5 +51,11 @@ Global
 		{CCC84D01-BA27-4B40-BBEB-5DEB1C32038F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCC84D01-BA27-4B40-BBEB-5DEB1C32038F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCC84D01-BA27-4B40-BBEB-5DEB1C32038F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6FB681AE-5937-47CB-83BE-5D8B7D987A97}
 	EndGlobalSection
 EndGlobal
