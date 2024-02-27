@@ -1,30 +1,26 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
-using ChessDefinitions;
+﻿using ChessDefinitions;
 using ChessGameRepresentation;
 using ChessBotDiscord;
 using ChessGameControllerImplementation;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables()
-    .Build();
+var builder = Host.CreateDefaultBuilder(args);
 
-using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+builder.ConfigureServices(services =>
+{
+    services.AddSingleton<IChessAI, StockfishWrapper.Stockfish>();
+    services.AddSingleton<IChessGameFactory, ChessGameStateFactory>();
+    services.AddSingleton<IMoveValidator, MoveValidator>();
+    services.AddSingleton<IGamesStorage, InMemoryGamesStorage>();
+    services.AddSingleton<IChessGamesController, ChessGameController>();
+    services.AddSingleton<IBoardVisualizer, BoardVisualizer.WebBoardVisualizer>();
+    services.AddSingleton<ILocalizationProvider, ConfigLocalizationProvider>();
+    services.AddHostedService<DiscordBotController>();
+}
 
-IChessAI stockFish = new StockfishWrapper.Stockfish(configuration["PathToStockFish"]!, 100);
-IChessGameFactory gameFactory = new ChessGameStateFactory();
-IMoveValidator moveValidator = new MoveValidator();
-IGamesStorage gamesStorage = new InMemoryGamesStorage();
+);
 
-IChessGamesController chessGamesController = new ChessGameController(stockFish, gameFactory, moveValidator, gamesStorage, factory.CreateLogger<ChessGameController>());
-IBoardVisualizer boardVisualizer = new BoardVisualizer.WebBoardVisualizer();
-ILocalizationProvider localizationProvider = new ConfigLocalizationProvider(configuration);
+var app = builder.Build();
 
-var token = configuration["BotToken"]!;
-var bot = new DiscordBotController(token, chessGamesController, boardVisualizer, localizationProvider);
-
-bot.Initialize();
-
-Console.ReadLine();
+app.Run();

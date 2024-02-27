@@ -6,43 +6,38 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using Discord;
 using ChessDefinitions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace ChessBotDiscord
 {
     /// <summary>
     /// Represents a running instance of Discord bot
     /// </summary>
-    public class DiscordBotController
+    public class DiscordBotController : IHostedService
     {
 
-        private DiscordSocketClient? client;
-        private readonly string botToken;
-        private bool initialized = false;
+        DiscordSocketClient? client;
+        readonly string botToken;
+        readonly IChessGamesController chessGamesController;
+        readonly IBoardVisualizer boardVisualizer;
+        readonly ILocalizationProvider localizationProvider;
+        readonly ILogger<DiscordBotController> logger;
 
-        private readonly IChessGamesController chessGamesController;
-        private readonly IBoardVisualizer boardVisualizer;
-        private readonly ILocalizationProvider localizationProvider;
-
-        public DiscordBotController(string botToken, IChessGamesController chessGamesController, IBoardVisualizer boardVisualizer, ILocalizationProvider localizationProvider)
+        public DiscordBotController(IConfiguration configuration, IChessGamesController chessGamesController, IBoardVisualizer boardVisualizer, ILocalizationProvider localizationProvider, ILogger<DiscordBotController> logger)
         {
-            this.botToken = botToken;
+            botToken = configuration["BotToken"]!;
             this.chessGamesController = chessGamesController;
             this.boardVisualizer = boardVisualizer;
             this.localizationProvider = localizationProvider;
-        }
-
-        /// <summary>
-        /// Is bot ready?
-        /// </summary>
-        public bool IsReady()
-        {
-            return initialized;
+            this.logger = logger;
         }
 
         /// <summary>
         /// Should be called to start the bot
         /// </summary>
-        public void Initialize()
+        async Task Initialize()
         {
 
             client = new DiscordSocketClient(new DiscordSocketConfig() { GatewayIntents = GatewayIntents.AllUnprivileged ^ GatewayIntents.GuildInvites ^ GatewayIntents.GuildScheduledEvents }); ;
@@ -52,8 +47,8 @@ namespace ChessBotDiscord
             client.Ready += InitializeCommands;
             client.SlashCommandExecuted += SlashCommandHandler;
 
-            client.LoginAsync(TokenType.Bot, botToken).Wait();
-            client.StartAsync();
+            await client.LoginAsync(TokenType.Bot, botToken);
+            await client.StartAsync();
         }
 
         /// <summary>
@@ -73,9 +68,6 @@ namespace ChessBotDiscord
 
             await client!.CreateGlobalApplicationCommandAsync(newGameCommand.Build());
             await client!.CreateGlobalApplicationCommandAsync(moveCommand.Build());
-
-
-            initialized = true;
         }
 
         /// <summary>
@@ -180,9 +172,19 @@ namespace ChessBotDiscord
 
         Task LogBotOutput(LogMessage message)
         {
-            Console.WriteLine($"Bot output: {message}");
+            var severity = message.Severity > LogSeverity.Info ? LogLevel.Error : LogLevel.Information;
+            logger.Log(severity, "Bot output: {message}", message.ToString());
             return Task.CompletedTask;
         }
 
+        Task IHostedService.StartAsync(CancellationToken cancellationToken)
+        {
+            return Initialize();
+        }
+
+        Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        {
+            return client?.StopAsync() ?? Task.CompletedTask;
+        }
     }
 }
