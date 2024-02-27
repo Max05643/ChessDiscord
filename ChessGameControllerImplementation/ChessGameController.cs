@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 namespace ChessGameControllerImplementation;
 
 /// <summary>
-/// In-memory controller of multiply chess games
+/// Controller for multiply chess games
 /// </summary>
 public class ChessGameController : IChessGamesController
 {
