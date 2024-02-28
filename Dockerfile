@@ -9,6 +9,7 @@ COPY ChessDefinitions/*.csproj ./ChessDefinitions/
 COPY ChessGameControllerImplementation/*.csproj ./ChessGameControllerImplementation/
 COPY ChessGameRepresentation/*.csproj ./ChessGameRepresentation/
 COPY StockfishWrapper/*.csproj ./StockfishWrapper/
+COPY Test/*.csproj ./Test/
 RUN dotnet restore
 
 
@@ -18,6 +19,7 @@ COPY ChessDefinitions/. ./ChessDefinitions/
 COPY ChessGameControllerImplementation/. ./ChessGameControllerImplementation/
 COPY ChessGameRepresentation/. ./ChessGameRepresentation/
 COPY StockfishWrapper/. ./StockfishWrapper/
+COPY Tests/. ./Tests/
 WORKDIR /source/ChessBotDiscord
 RUN dotnet publish -c release -o /app --no-restore
 
