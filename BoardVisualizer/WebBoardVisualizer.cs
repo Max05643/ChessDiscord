@@ -12,11 +12,10 @@ namespace BoardVisualizer
     /// </summary>
     public class WebBoardVisualizer : IBoardVisualizer
     {
-        string IBoardVisualizer.GameToUrl(IChessGame chessGame)
+        string IBoardVisualizer.GameToUrl(string chessGameFen)
         {
-            var fen = chessGame.GetFen();
-            fen = fen.Replace(" ", "%20");
-            return $"https://chessboardimage.com/{fen}.png";
+            string fenEnc = chessGameFen.Replace(" ", "%20");
+            return $"https://chessboardimage.com/{fenEnc}.png";
         }
     }
 }

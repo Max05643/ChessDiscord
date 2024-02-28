@@ -21,18 +21,31 @@ namespace ChessBotDiscord
 
         DiscordSocketClient? client;
         readonly string botToken;
-        readonly IChessGamesController chessGamesController;
         readonly IBoardVisualizer boardVisualizer;
-        readonly ILocalizationProvider localizationProvider;
         readonly ILogger<DiscordBotController> logger;
-
-        public DiscordBotController(IConfiguration configuration, IChessGamesController chessGamesController, IBoardVisualizer boardVisualizer, ILocalizationProvider localizationProvider, ILogger<DiscordBotController> logger)
+        readonly IPlayersCommandProcessor playersCommandProcessor;
+        readonly ILocalizationProvider localizationProvider;
+        public DiscordBotController(IConfiguration configuration, IBoardVisualizer boardVisualizer, ILogger<DiscordBotController> logger, IPlayersCommandProcessor playersCommandProcessor, ILocalizationProvider localizationProvider)
         {
             botToken = configuration["BotToken"]!;
-            this.chessGamesController = chessGamesController;
             this.boardVisualizer = boardVisualizer;
-            this.localizationProvider = localizationProvider;
             this.logger = logger;
+            this.playersCommandProcessor = playersCommandProcessor;
+            this.localizationProvider = localizationProvider;
+        }
+
+
+        private Embed BuildEmbed(IPlayersCommandProcessor.CommandResult commandResult)
+        {
+            var builder = new EmbedBuilder();
+            builder.WithDescription(commandResult.Message);
+
+            if (commandResult.ChessGameFen != null)
+            {
+                builder.WithImageUrl(boardVisualizer.GameToUrl(commandResult.ChessGameFen));
+            }
+
+            return builder.Build();
         }
 
         /// <summary>
@@ -107,59 +120,9 @@ namespace ChessBotDiscord
 
 
             string playerMove = (string)(command.Data.Options.First(opt => opt.Name == "move").Value);
-            var result = chessGamesController.MakeMove(command.ChannelId.ToString()!, playerMove, out IChessGame? gameState);
+            var result = playersCommandProcessor.MakeMove(command.ChannelId.ToString()!, playerMove);
 
-            if (result == IChessGamesController.MoveRequestResult.InternalError)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = localizationProvider.GetLocalizedText("InternalErrorMessage"));
-            }
-            else if (result == IChessGamesController.MoveRequestResult.WrongFormat)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = localizationProvider.GetLocalizedText("WrongMoveFormatMessage"));
-            }
-            else if (result == IChessGamesController.MoveRequestResult.GameNotFound)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = localizationProvider.GetLocalizedText("GameNotFoundMessage"));
-            }
-            else if (result == IChessGamesController.MoveRequestResult.IllegalMove)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = localizationProvider.GetLocalizedText("IllegalMoveMessage"));
-            }
-            else if (result == IChessGamesController.MoveRequestResult.GameAlreadyEnded)
-            {
-                await command.ModifyOriginalResponseAsync((settings) => settings.Content = localizationProvider.GetLocalizedText("GameAlreadyEndedMessage"));
-            }
-            else if (result == IChessGamesController.MoveRequestResult.Success)
-            {
-                var img = boardVisualizer.GameToUrl(gameState!);
-
-                if (gameState!.GetCurrentState() == IChessGame.GameState.InProgress)
-                {
-                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("MakeYourMove")).Build());
-                }
-                else
-                {
-                    string gameResultDesc = "";
-
-                    switch (gameState!.GetCurrentState())
-                    {
-                        case IChessGame.GameState.Stalemate:
-                            gameResultDesc = localizationProvider.GetLocalizedText("TieMessage");
-                            break;
-                        case IChessGame.GameState.BlackWon:
-                            gameResultDesc = gameState!.IsPlayerWhite ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
-                            break;
-                        case IChessGame.GameState.WhiteWon:
-                            gameResultDesc = !gameState!.IsPlayerWhite ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
-                            break;
-                    }
-
-                    await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("EndMessage")).WithDescription(gameResultDesc).Build());
-                }
-            }
-
-
-
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = BuildEmbed(result));
         }
 
         /// <summary>
@@ -170,11 +133,9 @@ namespace ChessBotDiscord
             await command.DeferAsync();
 
             var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
-            var gameState = chessGamesController.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
+            var result = playersCommandProcessor.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
 
-            var img = boardVisualizer.GameToUrl(gameState);
-
-            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("GameStarted")).Build());
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = BuildEmbed(result));
 
         }
 
@@ -185,10 +146,9 @@ namespace ChessBotDiscord
         {
             await command.DeferAsync();
 
-            chessGamesController.RemoveGame(command.ChannelId.ToString()!);
+            var result = playersCommandProcessor.RemoveGame(command.ChannelId.ToString()!);
 
-            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("GameRemoved")).Build());
-
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = BuildEmbed(result));
         }
 
 

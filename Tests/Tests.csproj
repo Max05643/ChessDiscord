@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChessBotDiscord\ChessBotDiscord.csproj" />
     <ProjectReference Include="..\ChessDefinitions\ChessDefinitions.csproj" />
     <ProjectReference Include="..\ChessGameControllerImplementation\ChessGameControllerImplementation.csproj" />
     <ProjectReference Include="..\ChessGameRepresentation\ChessGameRepresentation.csproj" />

@@ -16,6 +16,7 @@ builder.ConfigureServices(services =>
     services.AddSingleton<IChessGamesController, ChessGameController>();
     services.AddSingleton<IBoardVisualizer, BoardVisualizer.WebBoardVisualizer>();
     services.AddSingleton<ILocalizationProvider, ConfigLocalizationProvider>();
+    services.AddSingleton<IPlayersCommandProcessor, PlayerCommandProcessor>();
     services.AddHostedService<DiscordBotController>();
 }
 

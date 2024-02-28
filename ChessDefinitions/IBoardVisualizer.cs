@@ -12,8 +12,8 @@ namespace ChessDefinitions
     public interface IBoardVisualizer
     {
         /// <summary>
-        /// Converts a povided chess game to an image url
+        /// Converts a povided chess game in fen to an image url
         /// </summary>
-        string GameToUrl(IChessGame chessGame);
+        string GameToUrl(string chessGameFen);
     }
 }
