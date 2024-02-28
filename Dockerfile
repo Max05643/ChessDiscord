@@ -32,4 +32,5 @@ COPY --from=build /app ./
 RUN apt-get update && apt-get install -y stockfish
 
 ENV PathToStockFish "/usr/bin/stockfish"
+ENV DOTNET_ENVIRONMENT Production
 ENTRYPOINT ["dotnet", "ChessBotDiscord.dll"]
