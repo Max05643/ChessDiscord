@@ -82,7 +82,7 @@ public class ChessGameController : IChessGamesController
         }
         catch (Exception e)
         {
-            logger.LogError("Error in StartNewGame: {e}", e);
+            logger.LogError("Error in RemoveGame: {e}", e);
         }
     }
 
