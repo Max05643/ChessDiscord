@@ -12,7 +12,7 @@ builder.ConfigureServices(services =>
     services.AddSingleton<IChessAI, StockfishWrapper.Stockfish>();
     services.AddSingleton<IChessGameFactory, ChessGameStateFactory>();
     services.AddSingleton<IMoveValidator, MoveValidator>();
-    services.AddSingleton<IGamesStorage, InMemoryGamesStorage>();
+    services.AddSingleton<IGamesStorage, SqlServerStorage.SqlServerGamesStorage>();
     services.AddSingleton<IChessGamesController, ChessGameController>();
     services.AddSingleton<IBoardVisualizer, BoardVisualizer.WebBoardVisualizer>();
     services.AddSingleton<ILocalizationProvider, ConfigLocalizationProvider>();

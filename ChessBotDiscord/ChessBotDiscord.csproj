@@ -23,10 +23,14 @@
     <ProjectReference Include="..\ChessDefinitions\ChessDefinitions.csproj" />
     <ProjectReference Include="..\ChessGameControllerImplementation\ChessGameControllerImplementation.csproj" />
     <ProjectReference Include="..\ChessGameRepresentation\ChessGameRepresentation.csproj" />
+    <ProjectReference Include="..\SqlServerStorage\SqlServerStorage.csproj" />
     <ProjectReference Include="..\StockfishWrapper\StockfishWrapper.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
