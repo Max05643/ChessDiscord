@@ -9,6 +9,7 @@ using ChessDefinitions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using ChessGameControllerImplementation;
 
 namespace ChessBotDiscord
 {
@@ -66,8 +67,13 @@ namespace ChessBotDiscord
             moveCommand.WithDescription(localizationProvider.GetLocalizedText("MoveDesc"));
             moveCommand.AddOption("move", ApplicationCommandOptionType.String, localizationProvider.GetLocalizedText("MoveFormat"), isRequired: true);
 
+            var removeCommand = new SlashCommandBuilder();
+            removeCommand.WithName("remove");
+            removeCommand.WithDescription(localizationProvider.GetLocalizedText("RemoveDesc"));
+
             await client!.CreateGlobalApplicationCommandAsync(newGameCommand.Build());
             await client!.CreateGlobalApplicationCommandAsync(moveCommand.Build());
+            await client!.CreateGlobalApplicationCommandAsync(removeCommand.Build());
         }
 
         /// <summary>
@@ -82,6 +88,9 @@ namespace ChessBotDiscord
                     break;
                 case "move":
                     Task.Run(() => MakeMove(command));
+                    break;
+                case "remove":
+                    Task.Run(() => RemoveGame(command));
                     break;
             }
             return Task.CompletedTask;
@@ -163,12 +172,25 @@ namespace ChessBotDiscord
             var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
             var gameState = chessGamesController.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
 
-
             var img = boardVisualizer.GameToUrl(gameState);
 
-            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle("New game started").Build());
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithImageUrl(img).WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("GameStarted")).Build());
 
         }
+
+        /// <summary>
+        /// Removes an existing game
+        /// </summary>
+        async Task RemoveGame(SocketSlashCommand command)
+        {
+            await command.DeferAsync();
+
+            chessGamesController.RemoveGame(command.ChannelId.ToString()!);
+
+            await command.ModifyOriginalResponseAsync((settings) => settings.Embed = new EmbedBuilder().WithColor(Color.Red).WithTitle(localizationProvider.GetLocalizedText("GameRemoved")).Build());
+
+        }
+
 
         Task LogBotOutput(LogMessage message)
         {

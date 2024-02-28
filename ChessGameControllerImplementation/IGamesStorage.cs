@@ -18,7 +18,10 @@ namespace ChessGameControllerImplementation
         /// </summary>
         public interface IGameHandler : IDisposable
         {
-            public IChessGame Game { get; }
+            /// <summary>
+            /// Provides an access to the game. All changes will be saved after the call to Dispose
+            /// </summary>
+            IChessGame Game { get; }
         }
 
         /// <summary>

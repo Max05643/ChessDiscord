@@ -21,6 +21,13 @@ namespace ChessDefinitions
             GameAlreadyEnded
         }
 
+
+        /// <summary>
+        /// Removes the game. Does nothing if it does not exist
+        /// </summary>
+        /// <param name="gameId">Unique id for the game</param>
+        void RemoveGame(string gameId);
+
         /// <summary>
         /// Starts new game. Will delete previous one with the same gameId if one exists. Returns new game
         /// </summary>

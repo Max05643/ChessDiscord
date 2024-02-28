@@ -74,6 +74,18 @@ public class ChessGameController : IChessGamesController
         }
     }
 
+    void IChessGamesController.RemoveGame(string gameId)
+    {
+        try
+        {
+            gamesStorage.RemoveGame(gameId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Error in StartNewGame: {e}", e);
+        }
+    }
+
     IChessGame IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite)
     {
         var newGameState = gameFactory.CreateGame(isPlayerWhite);
