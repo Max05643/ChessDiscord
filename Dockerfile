@@ -10,6 +10,7 @@ COPY ChessGameControllerImplementation/*.csproj ./ChessGameControllerImplementat
 COPY ChessGameRepresentation/*.csproj ./ChessGameRepresentation/
 COPY StockfishWrapper/*.csproj ./StockfishWrapper/
 COPY Tests/*.csproj ./Tests/
+COPY SqlServerStorage/*.csproj ./SqlServerStorage/
 RUN dotnet restore
 
 
@@ -20,6 +21,7 @@ COPY ChessGameControllerImplementation/. ./ChessGameControllerImplementation/
 COPY ChessGameRepresentation/. ./ChessGameRepresentation/
 COPY StockfishWrapper/. ./StockfishWrapper/
 COPY Tests/. ./Tests/
+COPY SqlServerStorage/. ./SqlServerStorage/
 WORKDIR /source/ChessBotDiscord
 RUN dotnet publish -c release -o /app --no-restore
 
