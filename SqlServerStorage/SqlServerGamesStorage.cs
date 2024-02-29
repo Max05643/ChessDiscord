@@ -35,7 +35,8 @@ namespace SqlServerStorage
             var dbContext = new GamesStorageDBContext(connectionString, gameFactory);
             var transaction = dbContext.Database.BeginTransaction(System.Data.IsolationLevel.Serializable);
 
-            var game = dbContext.StoredGames.Find(gameId);
+            var game = dbContext.StoredGames.FromSqlInterpolated($"SELECT * FROM [StoredGames] WITH (XLOCK, ROWLOCK) WHERE Id = {gameId}")
+            .FirstOrDefault();
 
             if (game == null || game.ChessGame == null)
             {
@@ -58,10 +59,14 @@ namespace SqlServerStorage
 
             if (previousGame != null)
             {
-                dbContext.StoredGames.Remove(previousGame);
+                previousGame.ChessGame = game;
+                dbContext.StoredGames.Update(previousGame);
+            }
+            else
+            {
+                dbContext.StoredGames.Add(new ChessGameDBRecord() { Id = gameId, ChessGame = game });
             }
 
-            dbContext.StoredGames.Add(new ChessGameDBRecord() { Id = gameId, ChessGame = game});
             dbContext.SaveChanges();
 
             transaction.Commit();
