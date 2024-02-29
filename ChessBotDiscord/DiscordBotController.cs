@@ -38,8 +38,8 @@ namespace ChessBotDiscord
         private Embed BuildEmbed(IPlayersCommandProcessor.CommandResult commandResult)
         {
             var builder = new EmbedBuilder();
-            builder.WithDescription(commandResult.Message);
-
+            builder.WithDescription(commandResult.Description);
+            builder.WithTitle(commandResult.Message);
             if (commandResult.ChessGameFen != null)
             {
                 builder.WithImageUrl(boardVisualizer.GameToUrl(commandResult.ChessGameFen));

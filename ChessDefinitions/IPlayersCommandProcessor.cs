@@ -18,6 +18,8 @@ namespace ChessDefinitions
         public class CommandResult
         {
             public string Message { get; set; } = string.Empty;
+
+            public string Description { get; set; } = string.Empty;
             public string? ChessGameFen { get; set; } = null;
         }
 
