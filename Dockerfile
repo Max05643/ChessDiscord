@@ -9,7 +9,7 @@ COPY ChessDefinitions/*.csproj ./ChessDefinitions/
 COPY ChessGameControllerImplementation/*.csproj ./ChessGameControllerImplementation/
 COPY ChessGameRepresentation/*.csproj ./ChessGameRepresentation/
 COPY StockfishWrapper/*.csproj ./StockfishWrapper/
-COPY Test/*.csproj ./Test/
+COPY Tests/*.csproj ./Tests/
 RUN dotnet restore
 
 
