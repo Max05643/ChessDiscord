@@ -21,19 +21,29 @@ namespace ChessDefinitions
             GameAlreadyEnded
         }
 
+        public enum NewGameResult
+        {
+            Success,
+            InternalError
+        }
+        public enum RemoveGameResult
+        {
+            Success,
+            InternalError
+        }
 
         /// <summary>
         /// Removes the game. Does nothing if it does not exist
         /// </summary>
         /// <param name="gameId">Unique id for the game</param>
-        void RemoveGame(string gameId);
+        RemoveGameResult RemoveGame(string gameId);
 
         /// <summary>
-        /// Starts new game. Will delete previous one with the same gameId if one exists. Returns new game
+        /// Starts new game. Will delete previous one with the same gameId if one exists. Will set currentGameState if operation is successful
         /// </summary>
         /// <param name="gameId">Unique id for the game</param>
         /// <param name="isPlayerWhite">Is player playing as white?</param>
-        IChessGame StartNewGame(string gameId, bool isPlayerWhite);
+        NewGameResult StartNewGame(string gameId, bool isPlayerWhite, out IChessGame? currentGameState);
 
         /// <summary>
         /// Tries to make a move in specified game. Will do nothing if operation is impossible. Will set currentGameState to current state of the game if it is possible  

@@ -75,19 +75,21 @@ public class ChessGameController : IChessGamesController
         }
     }
 
-    void IChessGamesController.RemoveGame(string gameId)
+    IChessGamesController.RemoveGameResult IChessGamesController.RemoveGame(string gameId)
     {
         try
         {
             gamesStorage.RemoveGame(gameId);
+            return IChessGamesController.RemoveGameResult.Success;
         }
         catch (Exception e)
         {
             logger.LogError("Error in RemoveGame: {e}", e);
+            return IChessGamesController.RemoveGameResult.InternalError;
         }
     }
 
-    IChessGame IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite)
+    IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, out IChessGame? currentGameState)
     {
         var newGameState = gameFactory.CreateGame(isPlayerWhite);
         try
@@ -99,12 +101,16 @@ public class ChessGameController : IChessGamesController
             }
 
             gamesStorage.CreateGame(gameId, newGameState);
+            currentGameState = newGameState.Clone();
+            return IChessGamesController.NewGameResult.Success;
         }
         catch (Exception e)
         {
             logger.LogError("Error in StartNewGame: {e}", e);
+            currentGameState = null;
+            return IChessGamesController.NewGameResult.InternalError;
         }
 
-        return newGameState.Clone();
+        
     }
 }

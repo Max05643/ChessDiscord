@@ -39,10 +39,11 @@ namespace Tests
 
 
             // Act
-            var result = controller.StartNewGame(gameId, isPlayerWhite);
+            var result = controller.StartNewGame(gameId, isPlayerWhite, out IChessGame? currentGameState);
 
             // Assert
-            result.ShouldNotBeNull();
+            currentGameState.ShouldNotBeNull();
+            result.ShouldBe(IChessGamesController.NewGameResult.Success);
             mockGamesStorage.Verify(gs => gs.CreateGame(gameId, It.IsAny<IChessGame>()), Times.Once);
         }
 
@@ -70,10 +71,11 @@ namespace Tests
                 mockLogger.Object);
 
             // Act
-            var result = controller.StartNewGame(gameId, isPlayerWhite);
+            var result = controller.StartNewGame(gameId, isPlayerWhite, out IChessGame? currentGameState);
 
             // Assert
-            result.ShouldNotBeNull();
+            currentGameState.ShouldNotBeNull();
+            result.ShouldBe(IChessGamesController.NewGameResult.Success);
             mockChessAI.Verify(ai => ai.GetNextMove(It.IsAny<string>(), out It.Ref<string?>.IsAny), Times.Once);
         }
 

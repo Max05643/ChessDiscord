@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ChessDefinitions.IChessGame;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ChessBotDiscord
@@ -77,14 +78,33 @@ namespace ChessBotDiscord
 
         IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.RemoveGame(string gameId)
         {
-            chessGamesController.RemoveGame(gameId);
-            return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameRemoved") };
+            var result = chessGamesController.RemoveGame(gameId);
+
+            if (result == IChessGamesController.RemoveGameResult.Success)
+            {
+                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameRemoved") };
+            }
+            else
+            {
+                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("InternalErrorMessage") };
+            }
+
         }
 
         IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.StartNewGame(string gameId, bool isPlayerWhite)
         {
-            var gameState = chessGamesController.StartNewGame(gameId, isPlayerWhite);
-            return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameStarted"), ChessGameFen = gameState.GetFen() };
+            var result = chessGamesController.StartNewGame(gameId, isPlayerWhite, out IChessGame? gameState);
+
+            if (result == IChessGamesController.NewGameResult.Success)
+            {
+                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameStarted"), ChessGameFen = gameState!.GetFen() };
+            }
+            else
+            {
+                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("InternalErrorMessage") };
+            }
+
+
         }
     }
 }
