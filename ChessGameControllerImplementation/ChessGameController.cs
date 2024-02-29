@@ -69,6 +69,7 @@ public class ChessGameController : IChessGamesController
         }
         catch (Exception e)
         {
+            currentGameState = null;
             logger.LogError("Error in MakeMove: {e}", e);
             return IChessGamesController.MoveRequestResult.InternalError;
         }
