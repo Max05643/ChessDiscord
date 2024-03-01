@@ -16,6 +16,7 @@ namespace ChessDefinitions
         /// </summary>
         /// <param name="currentPositionFen">Current position in FEN</param>
         /// <param name="move">Next move. Will be null if impossible to calculate</param>
-        bool GetNextMove(string currentPositionFen, out string? move);
+        /// <param name="depth">Max search depth of the chess AI</param>
+        bool GetNextMove(string currentPositionFen, out string? move, int depth = 15);
     }
 }
