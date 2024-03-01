@@ -76,7 +76,7 @@ namespace Tests
             // Assert
             currentGameState.ShouldNotBeNull();
             result.ShouldBe(IChessGamesController.NewGameResult.Success);
-            mockChessAI.Verify(ai => ai.GetNextMove(It.IsAny<string>(), out It.Ref<string?>.IsAny), Times.Once);
+            mockChessAI.Verify(ai => ai.GetNextMove(It.IsAny<string>(), out It.Ref<string?>.IsAny, It.IsAny<int>()), Times.Once);
         }
 
         [Fact]
