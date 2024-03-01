@@ -59,7 +59,7 @@ namespace StockfishWrapper
                     }
                     else
                     {
-                        move = data[1];
+                        move = data[1][..4];
                         return true;
                     }
                 }
