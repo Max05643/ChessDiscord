@@ -1,6 +1,8 @@
 ﻿using ChessDefinitions;
+using ChessGameRepresentation;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using static ChessGameControllerImplementation.IGamesStorage;
 
 namespace ChessGameControllerImplementation;
 
@@ -25,7 +27,7 @@ public class ChessGameController : IChessGamesController
         this.logger = logger;
     }
 
-    IChessGamesController.MoveRequestResult IChessGamesController.MakeMove(string gameId, string move, out IChessGame? currentGameState)
+    IChessGamesController.MoveRequestResult IChessGamesController.MakeMove(string gameId, string move, out IChessGameSnapshot? currentGameState)
     {
         currentGameState = null;
 
@@ -35,10 +37,9 @@ public class ChessGameController : IChessGamesController
             using var gameHandler = gamesStorage.AcquireGame(gameId);
             if (gameHandler != null)
             {
-                currentGameState = gameHandler.Game.Clone();
-
                 if (!moveValidator.Validate(move))
                 {
+                    currentGameState = ChessGameSnapshot.ConstructFromChessGameState(gameHandler.Game);
                     return IChessGamesController.MoveRequestResult.WrongFormat;
                 }
 
@@ -51,9 +52,7 @@ public class ChessGameController : IChessGamesController
                 {
                     chessAI.GetNextMove(gameHandler.Game.GetFen(), out string? aiMove);
                     gameHandler.Game.MakeMove(aiMove!);
-
-
-                    currentGameState = gameHandler.Game.Clone();
+                    currentGameState = ChessGameSnapshot.ConstructFromChessGameState(gameHandler.Game);
                     return IChessGamesController.MoveRequestResult.Success;
                 }
                 else
@@ -89,7 +88,7 @@ public class ChessGameController : IChessGamesController
         }
     }
 
-    IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, out IChessGame? currentGameState)
+    IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, out IChessGameSnapshot? currentGameState)
     {
         var newGameState = gameFactory.CreateGame(isPlayerWhite);
         try
@@ -101,7 +100,7 @@ public class ChessGameController : IChessGamesController
             }
 
             gamesStorage.CreateGame(gameId, newGameState);
-            currentGameState = newGameState.Clone();
+            currentGameState = ChessGameSnapshot.ConstructFromChessGameState(newGameState);
             return IChessGamesController.NewGameResult.Success;
         }
         catch (Exception e)

@@ -18,7 +18,7 @@ namespace ChessGameRepresentation
             this.isPlayerWhite = isPlayerWhite; 
         }
 
-        bool IChessGame.IsPlayerWhite => isPlayerWhite;
+        public bool IsPlayerWhite => isPlayerWhite;
 
         public IChessGame.GameState GetCurrentState()
         {
@@ -83,12 +83,6 @@ namespace ChessGameRepresentation
             return board.ToAscii();
         }
 
-        IChessGame IChessGame.Clone()
-        {
-            var game = new ChessGameState(isPlayerWhite);
-            game.LoadFromFen(board.ToFen());
-            return game;
-        }
     }
 
     public class ChessGameStateFactory : IChessGameFactory

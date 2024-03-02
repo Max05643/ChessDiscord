@@ -23,7 +23,7 @@ namespace ChessBotDiscord
         }
 
 
-        private string ConstructDescriptionFromGame(IChessGame game)
+        private string ConstructDescriptionFromGame(IChessGameSnapshot game)
         {
             return game.IsPlayerWhite ? $"{localizationProvider.GetLocalizedText("WhitePlayer")}-{localizationProvider.GetLocalizedText("HumanPlayer")}\n{localizationProvider.GetLocalizedText("BlackPlayer")}-{localizationProvider.GetLocalizedText("AIPlayer")}" :
                 $"{localizationProvider.GetLocalizedText("WhitePlayer")}-{localizationProvider.GetLocalizedText("AIPlayer")}\n{localizationProvider.GetLocalizedText("BlackPlayer")}-{localizationProvider.GetLocalizedText("HumanPlayer")}";
@@ -31,12 +31,12 @@ namespace ChessBotDiscord
 
         IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.MakeMove(string gameId, string playerMove)
         {
-            var result = chessGamesController.MakeMove(gameId, playerMove, out IChessGame? gameState);
+            var result = chessGamesController.MakeMove(gameId, playerMove, out IChessGameSnapshot? gameState);
             var output = new IPlayersCommandProcessor.CommandResult();
 
             if (gameState != null)
             {
-                output.ChessGameFen = gameState.GetFen();
+                output.ChessGameFen = gameState.Fen;
                 output.Description = ConstructDescriptionFromGame(gameState);
             }
             if (result == IChessGamesController.MoveRequestResult.InternalError)
@@ -61,13 +61,13 @@ namespace ChessBotDiscord
             }
             else if (result == IChessGamesController.MoveRequestResult.Success)
             {
-                if (gameState!.GetCurrentState() == IChessGame.GameState.InProgress)
+                if (gameState!.State == IChessGame.GameState.InProgress)
                 {
                     output.Message = localizationProvider.GetLocalizedText("MakeYourMove");
                 }
                 else
                 {
-                    switch (gameState!.GetCurrentState())
+                    switch (gameState!.State)
                     {
                         case GameState.Stalemate:
                             output.Message = localizationProvider.GetLocalizedText("TieMessage");
@@ -102,11 +102,11 @@ namespace ChessBotDiscord
 
         IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.StartNewGame(string gameId, bool isPlayerWhite)
         {
-            var result = chessGamesController.StartNewGame(gameId, isPlayerWhite, out IChessGame? gameState);
+            var result = chessGamesController.StartNewGame(gameId, isPlayerWhite, out IChessGameSnapshot? gameState);
 
             if (result == IChessGamesController.NewGameResult.Success)
             {
-                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameStarted"), ChessGameFen = gameState!.GetFen(), Description = ConstructDescriptionFromGame(gameState) };
+                return new IPlayersCommandProcessor.CommandResult() { Message = localizationProvider.GetLocalizedText("GameStarted"), ChessGameFen = gameState!.Fen, Description = ConstructDescriptionFromGame(gameState) };
             }
             else
             {

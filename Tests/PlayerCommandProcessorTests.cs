@@ -19,10 +19,10 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.InternalError);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.InternalError);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("InternalErrorMessage")).Returns("Internal error occurred.");
 
-            IPlayersCommandProcessor commandProcessor = new ChessBotDiscord.PlayerCommandProcessor(mockChessGamesController.Object, mockLocalizationProvider.Object);
+            IPlayersCommandProcessor commandProcessor = new PlayerCommandProcessor(mockChessGamesController.Object, mockLocalizationProvider.Object);
 
 
             // Act
@@ -30,6 +30,7 @@ namespace Tests
 
             // Assert
             result.Message.ShouldBe("Internal error occurred.");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.WrongFormat);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.WrongFormat);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("WrongMoveFormatMessage")).Returns("Invalid move format.");
 
 
@@ -53,6 +54,7 @@ namespace Tests
 
             // Assert
             result.Message.ShouldBe("Invalid move format.");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
         [Fact]
@@ -64,7 +66,7 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.GameNotFound);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.GameNotFound);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("GameNotFoundMessage")).Returns("Game not found.");
 
 
@@ -76,6 +78,7 @@ namespace Tests
 
             // Assert
             result.Message.ShouldBe("Game not found.");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
         [Fact]
@@ -87,7 +90,7 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.IllegalMove);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.IllegalMove);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("IllegalMoveMessage")).Returns("Illegal move.");
 
 
@@ -99,6 +102,7 @@ namespace Tests
 
             // Assert
             result.Message.ShouldBe("Illegal move.");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
         [Fact]
@@ -110,7 +114,7 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.GameAlreadyEnded);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Returns(IChessGamesController.MoveRequestResult.GameAlreadyEnded);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("GameAlreadyEndedMessage")).Returns("Game has already ended.");
 
 
@@ -123,6 +127,7 @@ namespace Tests
 
             // Assert
             result.Message.ShouldBe("Game has already ended.");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
         [Fact]
@@ -134,12 +139,13 @@ namespace Tests
             var mockChessGamesController = new Mock<IChessGamesController>();
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
-            var gameStateMock = new Mock<IChessGame>();
-            gameStateMock.Setup(gs => gs.GetCurrentState()).Returns(IChessGame.GameState.InProgress);
-            gameStateMock.Setup(gs => gs.GetFen()).Returns("fenString");
+            var gameStateMock = new Mock<IChessGameSnapshot>();
+            gameStateMock.SetupGet(gs => gs.State).Returns(IChessGame.GameState.InProgress);
+            gameStateMock.SetupGet(gs => gs.Fen).Returns("fenString");
+            gameStateMock.SetupGet(gs => gs.IsPlayerWhite).Returns(true);
 
 
-            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGame?>.IsAny)).Callback((string gameId, string playerMove, out IChessGame? game) => { game = gameStateMock.Object; }).Returns(IChessGamesController.MoveRequestResult.Success);
+            mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Callback((string gameId, string playerMove, out IChessGameSnapshot? game) => { game = gameStateMock.Object; }).Returns(IChessGamesController.MoveRequestResult.Success);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("MakeYourMove")).Returns("Make your move.");
 
             IPlayersCommandProcessor commandProcessor = new PlayerCommandProcessor(mockChessGamesController.Object, mockLocalizationProvider.Object);
@@ -150,6 +156,7 @@ namespace Tests
             // Assert
             result.Message.ShouldBe("Make your move.");
             result.ChessGameFen.ShouldBe("fenString");
+            mockChessGamesController.Verify(controller => controller.MakeMove(It.IsAny<string>(), It.IsAny<string>(), out It.Ref<IChessGameSnapshot?>.IsAny));
         }
 
     }
