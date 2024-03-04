@@ -9,87 +9,40 @@ namespace ChessGameRepresentation
     public class ChessGameState : IChessGame
     {
 
-        private ChessBoard board;
-        private readonly bool isPlayerWhite;
+        readonly ChessBoardState boardState;
+        readonly PlayersDescriptor playersDescriptor;
 
-        public ChessGameState(bool isPlayerWhite)
+        public ChessGameState(IPlayersDescriptor playersDescriptor)
         {
-            board = new ChessBoard();
-            this.isPlayerWhite = isPlayerWhite; 
+            boardState = new ChessBoardState();
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
+        }
+        public ChessGameState(IPlayersDescriptor playersDescriptor, string fen)
+        {
+            boardState = new ChessBoardState(fen);
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
         }
 
-        public bool IsPlayerWhite => isPlayerWhite;
+        IPlayersDescriptor IChessGame.Players => playersDescriptor;
 
-        public IChessGame.GameState GetCurrentState()
+        IChessBoard IChessGame.Board => boardState;
+
+        IChessGameSnapshot IChessGame.GetSnapshot()
         {
-            if (board.IsEndGame)
-            {
-                return board.EndGame!.EndgameType == EndgameType.Checkmate ? (board.EndGame.WonSide == PieceColor.Black ? IChessGame.GameState.BlackWon : IChessGame.GameState.WhiteWon) : IChessGame.GameState.Stalemate;
-            }
-            else
-            {
-                return IChessGame.GameState.InProgress;
-            }
+            return new ChessGameSnapshot(boardState.GetFen(), boardState.GetCurrentState(), playersDescriptor);
         }
-
-        public string GetFen()
-        {
-            return board.ToFen();
-        }
-
-        public bool IsWhiteMove()
-        {
-            if (GetCurrentState() == IChessGame.GameState.InProgress)
-            {
-                return board.Turn == PieceColor.White;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void LoadFromFen(string positionFen)
-        {
-            board = ChessBoard.LoadFromFen(positionFen);
-        }
-
-        public bool MakeMove(string move)
-        {
-            bool isValid = true;
-            try
-            {
-                isValid = board.IsValidMove(move);
-
-            }
-            catch (ChessException)
-            {
-                return false;
-            }
-
-            if (isValid)
-            {
-                board.Move(move);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public string ToAscii()
-        {
-            return board.ToAscii();
-        }
-
     }
 
     public class ChessGameStateFactory : IChessGameFactory
     {
-        IChessGame IChessGameFactory.CreateGame(bool isPlayerWhite)
+        IChessGame IChessGameFactory.CreateGame(IPlayersDescriptor playersDescriptor)
         {
-            return new ChessGameState(isPlayerWhite);
+            return new ChessGameState(playersDescriptor);
+        }
+
+        IChessGame IChessGameFactory.CreateGameFromFen(IPlayersDescriptor playersDescriptor, string fen)
+        {
+            return new ChessGameState(playersDescriptor, fen);
         }
     }
 }

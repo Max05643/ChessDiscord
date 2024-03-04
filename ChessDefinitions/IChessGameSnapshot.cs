@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 namespace ChessDefinitions
 {
     /// <summary>
-    /// Represents a read-only state of a chess game
+    /// Represents a read-only data about a chess game
     /// </summary>
     public interface IChessGameSnapshot
     {
-        public string Fen { get; }
+        string Fen { get; }
 
-        public IChessGame.GameState State { get; }
+        GameState State { get; }
 
         /// <summary>
-        /// Is player playing as white and AI as black?
+        /// Information about this game's players
         /// </summary>
-        bool IsPlayerWhite { get; }
+        IPlayersDescriptor Players { get; }
     }
 }

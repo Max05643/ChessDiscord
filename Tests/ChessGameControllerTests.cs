@@ -1,5 +1,6 @@
 ﻿using ChessDefinitions;
 using ChessGameControllerImplementation;
+using ChessGameRepresentation;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -21,13 +22,17 @@ namespace Tests
             string gameId = "game123";
             bool isPlayerWhite = true;
             var expectedGameStateMock = new Mock<IChessGame>();
+            var snapshotMock = new Mock<IChessGameSnapshot>();
+            expectedGameStateMock.Setup(state => state.GetSnapshot()).Returns(snapshotMock.Object);
+            expectedGameStateMock.Setup(state => state.Players.WhitePlayerType).Returns(PlayerType.Human);
+            expectedGameStateMock.Setup(state => state.Players.BlackPlayerType).Returns(PlayerType.AI);
 
             var mockChessAI = new Mock<IChessAI>();
             var mockGameFactory = new Mock<IChessGameFactory>();
             var mockMoveValidator = new Mock<IMoveValidator>();
             var mockGamesStorage = new Mock<IGamesStorage>();
             var mockLogger = new Mock<ILogger<ChessGameController>>();
-            mockGameFactory.Setup(gf => gf.CreateGame(isPlayerWhite)).Returns(expectedGameStateMock.Object);
+            mockGameFactory.Setup(gf => gf.CreateGame(It.Is<IPlayersDescriptor>(des => des.BlackPlayerType == PlayerType.AI && des.WhitePlayerType == PlayerType.Human))).Returns(expectedGameStateMock.Object);
 
             IChessGamesController controller = new ChessGameController(
                 mockChessAI.Object,
@@ -53,13 +58,18 @@ namespace Tests
             string gameId = "game123";
             bool isPlayerWhite = false; // AI plays first move
             var expectedGameStateMock = new Mock<IChessGame>();
+            var snapshotMock = new Mock<IChessGameSnapshot>();
+            expectedGameStateMock.Setup(state => state.GetSnapshot()).Returns(snapshotMock.Object);
+            expectedGameStateMock.Setup(state => state.Players.WhitePlayerType).Returns(PlayerType.AI);
+            expectedGameStateMock.Setup(state => state.Players.BlackPlayerType).Returns(PlayerType.Human);
+            expectedGameStateMock.Setup(state => state.Board.GetFen()).Returns("fen");
 
             var mockChessAI = new Mock<IChessAI>();
             var mockGameFactory = new Mock<IChessGameFactory>();
             var mockMoveValidator = new Mock<IMoveValidator>();
             var mockGamesStorage = new Mock<IGamesStorage>();
             var mockLogger = new Mock<ILogger<ChessGameController>>();
-            mockGameFactory.Setup(gf => gf.CreateGame(isPlayerWhite)).Returns(expectedGameStateMock.Object);
+            mockGameFactory.Setup(gf => gf.CreateGame(It.Is<IPlayersDescriptor>(des => des.BlackPlayerType == PlayerType.Human && des.WhitePlayerType == PlayerType.AI))).Returns(expectedGameStateMock.Object);
 
             IChessGamesController controller = new ChessGameController(
                 mockChessAI.Object,
@@ -74,7 +84,7 @@ namespace Tests
             // Assert
             currentGameState.ShouldNotBeNull();
             result.ShouldBe(IChessGamesController.NewGameResult.Success);
-            mockChessAI.Verify(ai => ai.GetNextMove(It.IsAny<string>(), out It.Ref<string?>.IsAny, It.IsAny<int>()), Times.Once);
+            mockChessAI.Verify(ai => ai.GetNextMove("fen", out It.Ref<string?>.IsAny, It.IsAny<int>()), Times.Once);
         }
 
         [Fact]
@@ -115,7 +125,7 @@ namespace Tests
             string gameId = "endedGame";
             string move = "e2e4";
             var endedGameMock = new Mock<IGameHandler>();
-            endedGameMock.Setup(g => g.Game.GetCurrentState()).Returns(IChessGame.GameState.WhiteWon);
+            endedGameMock.Setup(g => g.Game.Board.GetCurrentState()).Returns(GameState.WhiteWon);
 
             var mockChessAI = new Mock<IChessAI>();
             var mockGameFactory = new Mock<IChessGameFactory>();
@@ -149,6 +159,7 @@ namespace Tests
             string move = "e2e4";
             var gameHandlerMock = new Mock<IGameHandler>();
             var gameStateMock = new Mock<IChessGame>();
+            var snapshotMock = new Mock<IChessGameSnapshot>();
 
             var mockChessAI = new Mock<IChessAI>();
             var mockGameFactory = new Mock<IChessGameFactory>();
@@ -157,13 +168,15 @@ namespace Tests
             var mockLogger = new Mock<ILogger<ChessGameController>>();
 
             mockMoveValidator.Setup(mv => mv.Validate(move)).Returns(true);
-            gameStateMock.SetupSequence(gs => gs.GetCurrentState())
-                .Returns(IChessGame.GameState.InProgress)
-                .Returns(IChessGame.GameState.BlackWon);
-            gameStateMock.Setup(state => state.MakeMove(It.IsAny<string>())).Returns(true);
-            gameStateMock.Setup(state => state.GetFen()).Returns("fen");
+            gameStateMock.SetupSequence(gs => gs.Board.GetCurrentState())
+                .Returns(GameState.InProgress)
+                .Returns(GameState.BlackWon);
+            gameStateMock.Setup(state => state.Board.MakeMove(It.IsAny<string>())).Returns(true);
+            gameStateMock.Setup(state => state.Board.GetFen()).Returns("fen");
+            gameStateMock.Setup(state => state.GetSnapshot()).Returns(snapshotMock.Object);
 
             gameHandlerMock.Setup(gh => gh.Game).Returns(gameStateMock.Object);
+
             mockGamesStorage.Setup(gs => gs.AcquireGame(gameId)).Returns(gameHandlerMock.Object);
 
             IChessGamesController controller = new ChessGameController(
@@ -179,8 +192,8 @@ namespace Tests
             // Assert
             result.ShouldBe(IChessGamesController.MoveRequestResult.Success);
             currentGameStateSnapshot.ShouldNotBeNull();
-            currentGameStateSnapshot.Fen.ShouldBe("fen");
-            gameStateMock.Verify(gs => gs.MakeMove(move), Times.Once);
+            gameStateMock.Verify(gs => gs.GetSnapshot(), Times.Once);
+            gameStateMock.Verify(gs => gs.Board.MakeMove(move), Times.Once);
         }
 
         [Fact]
@@ -199,8 +212,8 @@ namespace Tests
             var mockLogger = new Mock<ILogger<ChessGameController>>();
 
             mockMoveValidator.Setup(mv => mv.Validate(move)).Returns(true);
-            gameStateMock.Setup(gs => gs.GetCurrentState()).Returns(IChessGame.GameState.InProgress);
-            gameStateMock.Setup(gs => gs.MakeMove(move)).Returns(false);
+            gameStateMock.Setup(gs => gs.Board.GetCurrentState()).Returns(GameState.InProgress);
+            gameStateMock.Setup(gs => gs.Board.MakeMove(move)).Returns(false);
 
             gameHandlerMock.Setup(gh => gh.Game).Returns(gameStateMock.Object);
             mockGamesStorage.Setup(gs => gs.AcquireGame(gameId)).Returns(gameHandlerMock.Object);
@@ -218,7 +231,7 @@ namespace Tests
             // Assert
             result.ShouldBe(IChessGamesController.MoveRequestResult.IllegalMove);
             currentSnapshot.ShouldBeNull();
-            gameStateMock.Verify(gs => gs.MakeMove(move), Times.Once);
+            gameStateMock.Verify(gs => gs.Board.MakeMove(move), Times.Once);
         }
 
 

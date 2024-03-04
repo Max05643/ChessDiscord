@@ -140,10 +140,10 @@ namespace Tests
             var mockLocalizationProvider = new Mock<ILocalizationProvider>();
 
             var gameStateMock = new Mock<IChessGameSnapshot>();
-            gameStateMock.SetupGet(gs => gs.State).Returns(IChessGame.GameState.InProgress);
+            gameStateMock.SetupGet(gs => gs.State).Returns(GameState.InProgress);
             gameStateMock.SetupGet(gs => gs.Fen).Returns("fenString");
-            gameStateMock.SetupGet(gs => gs.IsPlayerWhite).Returns(true);
-
+            gameStateMock.SetupGet(gs => gs.Players.WhitePlayerType).Returns(PlayerType.Human);
+            gameStateMock.SetupGet(gs => gs.Players.BlackPlayerType).Returns(PlayerType.AI);
 
             mockChessGamesController.Setup(c => c.MakeMove(gameId, playerMove, out It.Ref<IChessGameSnapshot?>.IsAny)).Callback((string gameId, string playerMove, out IChessGameSnapshot? game) => { game = gameStateMock.Object; }).Returns(IChessGamesController.MoveRequestResult.Success);
             mockLocalizationProvider.Setup(lp => lp.GetLocalizedText("MakeYourMove")).Returns("Make your move.");

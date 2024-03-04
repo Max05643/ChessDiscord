@@ -25,8 +25,7 @@ namespace ChessBotDiscord
 
         private string ConstructDescriptionFromGame(IChessGameSnapshot game)
         {
-            return game.IsPlayerWhite ? $"{localizationProvider.GetLocalizedText("WhitePlayer")}-{localizationProvider.GetLocalizedText("HumanPlayer")}\n{localizationProvider.GetLocalizedText("BlackPlayer")}-{localizationProvider.GetLocalizedText("AIPlayer")}" :
-                $"{localizationProvider.GetLocalizedText("WhitePlayer")}-{localizationProvider.GetLocalizedText("AIPlayer")}\n{localizationProvider.GetLocalizedText("BlackPlayer")}-{localizationProvider.GetLocalizedText("HumanPlayer")}";
+            return $"{localizationProvider.GetLocalizedText("WhitePlayer")}-{localizationProvider.GetLocalizedText(game.Players.WhitePlayerType == PlayerType.Human ? "HumanPlayer" : "AIPlayer")}\n{localizationProvider.GetLocalizedText("BlackPlayer")}-{localizationProvider.GetLocalizedText(game.Players.BlackPlayerType == PlayerType.Human ? "HumanPlayer" : "AIPlayer")}";
         }
 
         IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.MakeMove(string gameId, string playerMove)
@@ -61,22 +60,22 @@ namespace ChessBotDiscord
             }
             else if (result == IChessGamesController.MoveRequestResult.Success)
             {
-                if (gameState!.State == IChessGame.GameState.InProgress)
+                if (gameState!.State == GameState.InProgress)
                 {
                     output.Message = localizationProvider.GetLocalizedText("MakeYourMove");
                 }
                 else
                 {
-                    switch (gameState!.State)
+                    switch (gameState.State)
                     {
                         case GameState.Stalemate:
                             output.Message = localizationProvider.GetLocalizedText("TieMessage");
                             break;
                         case GameState.BlackWon:
-                            output.Message = gameState!.IsPlayerWhite ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
+                            output.Message = gameState.Players.WhitePlayerType == PlayerType.Human ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
                             break;
                         case GameState.WhiteWon:
-                            output.Message = !gameState!.IsPlayerWhite ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
+                            output.Message = gameState.Players.WhitePlayerType == PlayerType.Human ? localizationProvider.GetLocalizedText("LoseMessage") : localizationProvider.GetLocalizedText("WinMessage");
                             break;
                     }
                 }

@@ -12,24 +12,21 @@ namespace ChessGameRepresentation
     /// </summary>
     public class ChessGameSnapshot : IChessGameSnapshot
     {
-        private ChessGameSnapshot(string fen, IChessGame.GameState state, bool isPlayerWhite)
+        public ChessGameSnapshot(string fen, GameState state, IPlayersDescriptor playersDescriptor)
         {
             this.fen = fen;
             this.state = state;
-            this.isPlayerWhite = isPlayerWhite;
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
         }
 
         readonly string fen;
-        readonly IChessGame.GameState state;
-        readonly bool isPlayerWhite;
+        readonly GameState state;
+        readonly PlayersDescriptor playersDescriptor;
 
         string IChessGameSnapshot.Fen => fen;
-        IChessGame.GameState IChessGameSnapshot.State => state;
-        bool IChessGameSnapshot.IsPlayerWhite => isPlayerWhite;
 
-        public static ChessGameSnapshot ConstructFromChessGameState(IChessGame chessGame)
-        {
-            return new ChessGameSnapshot(chessGame.GetFen(), chessGame.GetCurrentState(), chessGame.IsPlayerWhite);
-        }
+        GameState IChessGameSnapshot.State => state;
+
+        IPlayersDescriptor IChessGameSnapshot.Players => playersDescriptor;
     }
 }

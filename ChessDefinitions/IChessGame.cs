@@ -8,39 +8,20 @@ namespace ChessDefinitions
 {
 
     /// <summary>
-    /// Represents a chess game
+    /// Represents all data about a chess game
     /// </summary>
     public interface IChessGame
     {
         /// <summary>
-        /// Represents a state of a chess game 
+        /// Information about this game's players
         /// </summary>
-        enum GameState
-        {
-            InProgress = 0,
-            Stalemate = 1,
-            BlackWon = 2,
-            WhiteWon = 3
-        }
+        IPlayersDescriptor Players { get; }
 
-        string GetFen();
-        void LoadFromFen(string positionFen);
+        IChessBoard Board { get; }
 
         /// <summary>
-        /// Makes a move if it is possible
+        /// Gets a read-only snapshot of the current game and board state. The snapshot won't reference this object
         /// </summary>
-        /// <param name="move">Move in algebraic notation, for example e2e4</param>
-        /// <returns>Whether move was possible and was made</returns>
-        bool MakeMove(string move);
-
-        /// <summary>
-        /// Is player playing as white and AI as black?
-        /// </summary>
-        bool IsPlayerWhite { get; }
-
-        bool IsWhiteMove();
-        GameState GetCurrentState();
-
-        string ToAscii();
+        IChessGameSnapshot GetSnapshot();
     }
 }

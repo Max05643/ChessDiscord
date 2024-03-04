@@ -39,20 +39,20 @@ public class ChessGameController : IChessGamesController
             {
                 if (!moveValidator.Validate(move))
                 {
-                    currentGameState = ChessGameSnapshot.ConstructFromChessGameState(gameHandler.Game);
+                    currentGameState = gameHandler.Game.GetSnapshot();
                     return IChessGamesController.MoveRequestResult.WrongFormat;
                 }
 
-                if (gameHandler.Game.GetCurrentState() != IChessGame.GameState.InProgress)
+                if (gameHandler.Game.Board.GetCurrentState() != GameState.InProgress)
                 {
                     return IChessGamesController.MoveRequestResult.GameAlreadyEnded;
                 }
 
-                if (gameHandler.Game.MakeMove(move))
+                if (gameHandler.Game.Board.MakeMove(move))
                 {
-                    chessAI.GetNextMove(gameHandler.Game.GetFen(), out string? aiMove);
-                    gameHandler.Game.MakeMove(aiMove!);
-                    currentGameState = ChessGameSnapshot.ConstructFromChessGameState(gameHandler.Game);
+                    chessAI.GetNextMove(gameHandler.Game.Board.GetFen(), out string? aiMove);
+                    gameHandler.Game.Board.MakeMove(aiMove!);
+                    currentGameState = gameHandler.Game.GetSnapshot();
                     return IChessGamesController.MoveRequestResult.Success;
                 }
                 else
@@ -90,17 +90,17 @@ public class ChessGameController : IChessGamesController
 
     IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, out IChessGameSnapshot? currentGameState)
     {
-        var newGameState = gameFactory.CreateGame(isPlayerWhite);
+        var newGameState = gameFactory.CreateGame(new PlayersDescriptor(isPlayerWhite ? PlayerType.Human : PlayerType.AI, !isPlayerWhite ? PlayerType.Human : PlayerType.AI));
         try
         {
-            if (!isPlayerWhite)
+            if (newGameState.Players.WhitePlayerType == PlayerType.AI)
             {
-                chessAI.GetNextMove(newGameState.GetFen(), out string? aiMove);
-                newGameState.MakeMove(aiMove!);
+                chessAI.GetNextMove(newGameState.Board.GetFen(), out string? aiMove);
+                newGameState.Board.MakeMove(aiMove!);
             }
 
             gamesStorage.CreateGame(gameId, newGameState);
-            currentGameState = ChessGameSnapshot.ConstructFromChessGameState(newGameState);
+            currentGameState = newGameState.GetSnapshot();
             return IChessGamesController.NewGameResult.Success;
         }
         catch (Exception e)
@@ -110,6 +110,6 @@ public class ChessGameController : IChessGamesController
             return IChessGamesController.NewGameResult.InternalError;
         }
 
-        
+
     }
 }

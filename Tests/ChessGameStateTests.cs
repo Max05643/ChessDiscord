@@ -14,23 +14,23 @@ namespace Tests
         public void GetCurrentState_InProgressGame_ShouldReturnInProgress()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
 
             // Act
-            var currentState = gameState.GetCurrentState();
+            var currentState = gameState.Board.GetCurrentState();
 
             // Assert
-            currentState.ShouldBe(IChessGame.GameState.InProgress);
+            currentState.ShouldBe(GameState.InProgress);
         }
 
         [Fact]
         public void IsWhiteMove_WhiteTurn_ShouldReturnTrue()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
 
             // Act
-            var isWhiteMove = gameState.IsWhiteMove();
+            var isWhiteMove = gameState.Board.IsWhiteMove();
 
             // Assert
             isWhiteMove.ShouldBeTrue();
@@ -40,72 +40,72 @@ namespace Tests
         public void MakeMove_ValidMove_ShouldReturnTrueAndChangeState()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
-            var initialFen = gameState.GetFen();
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            var initialFen = gameState.Board.GetFen();
             var validMove = "e2e4";
 
             // Act
-            var moveResult = gameState.MakeMove(validMove);
+            var moveResult = gameState.Board.MakeMove(validMove);
 
             // Assert
             moveResult.ShouldBeTrue();
-            var currentState = gameState.GetCurrentState();
-            currentState.ShouldBe(IChessGame.GameState.InProgress);
-            gameState.GetFen().ShouldNotBe(initialFen);
+            var currentState = gameState.Board.GetCurrentState();
+            currentState.ShouldBe(GameState.InProgress);
+            gameState.Board.GetFen().ShouldNotBe(initialFen);
         }
 
         [Fact]
         public void MakeMove_InvalidMove_ShouldReturnFalseAndNotChangeState()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
-            var initialFen = gameState.GetFen();
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e5"; // Invalid
 
             // Act
-            var moveResult = gameState.MakeMove(invalidMove);
+            var moveResult = gameState.Board.MakeMove(invalidMove);
 
             // Assert
             moveResult.ShouldBeFalse();
-            var currentState = gameState.GetCurrentState();
-            currentState.ShouldBe(IChessGame.GameState.InProgress);
-            gameState.GetFen().ShouldBe(initialFen);
+            var currentState = gameState.Board.GetCurrentState();
+            currentState.ShouldBe(GameState.InProgress);
+            gameState.Board.GetFen().ShouldBe(initialFen);
         }
 
         [Fact]
         public void MakeMove_InvalidMove_ExceptionThrown_ShouldReturnFalseAndNotChangeState()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
-            var initialFen = gameState.GetFen();
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e"; // Invalid format
 
             // Act
-            var moveResult = gameState.MakeMove(invalidMove);
+            var moveResult = gameState.Board.MakeMove(invalidMove);
 
             // Assert
             moveResult.ShouldBeFalse();
-            var currentState = gameState.GetCurrentState();
-            currentState.ShouldBe(IChessGame.GameState.InProgress);
-            gameState.GetFen().ShouldBe(initialFen);
+            var currentState = gameState.Board.GetCurrentState();
+            currentState.ShouldBe(GameState.InProgress);
+            gameState.Board.GetFen().ShouldBe(initialFen);
         }
 
         [Fact]
         public void MakeMove_InvalidMove_DoesNotChangeState()
         {
             // Arrange
-            var gameState = new ChessGameState(isPlayerWhite: true);
-            var initialFen = gameState.GetFen();
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e5"; // Invalid
 
             // Act
-            var moveResult = gameState.MakeMove(invalidMove);
+            var moveResult = gameState.Board.MakeMove(invalidMove);
 
             // Assert
             moveResult.ShouldBeFalse();
-            var currentState = gameState.GetCurrentState();
-            currentState.ShouldBe(IChessGame.GameState.InProgress);
-            gameState.GetFen().ShouldBe(initialFen); 
+            var currentState = gameState.Board.GetCurrentState();
+            currentState.ShouldBe(GameState.InProgress);
+            gameState.Board.GetFen().ShouldBe(initialFen); 
         }
 
 
