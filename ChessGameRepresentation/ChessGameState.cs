@@ -15,12 +15,12 @@ namespace ChessGameRepresentation
         public ChessGameState(IPlayersDescriptor playersDescriptor)
         {
             boardState = new ChessBoardState();
-            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType, playersDescriptor.AIPlayerDifficulty);
         }
         public ChessGameState(IPlayersDescriptor playersDescriptor, string fen)
         {
             boardState = new ChessBoardState(fen);
-            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType, playersDescriptor.AIPlayerDifficulty);
         }
 
         IPlayersDescriptor IChessGame.Players => playersDescriptor;

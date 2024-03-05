@@ -1,12 +1,4 @@
 ﻿using ChessDefinitions;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static ChessDefinitions.IChessGame;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ChessBotDiscord
 {
@@ -99,9 +91,9 @@ namespace ChessBotDiscord
 
         }
 
-        IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.StartNewGame(string gameId, bool isPlayerWhite)
+        IPlayersCommandProcessor.CommandResult IPlayersCommandProcessor.StartNewGame(string gameId, bool isPlayerWhite, AIDifficulty aIDifficulty)
         {
-            var result = chessGamesController.StartNewGame(gameId, isPlayerWhite, out IChessGameSnapshot? gameState);
+            var result = chessGamesController.StartNewGame(gameId, isPlayerWhite, aIDifficulty, out IChessGameSnapshot? gameState);
 
             if (result == IChessGamesController.NewGameResult.Success)
             {

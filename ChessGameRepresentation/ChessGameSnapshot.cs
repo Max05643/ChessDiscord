@@ -16,7 +16,7 @@ namespace ChessGameRepresentation
         {
             this.fen = fen;
             this.state = state;
-            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType);
+            this.playersDescriptor = new PlayersDescriptor(playersDescriptor.WhitePlayerType, playersDescriptor.BlackPlayerType, playersDescriptor.AIPlayerDifficulty);
         }
 
         readonly string fen;

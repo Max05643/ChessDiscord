@@ -20,5 +20,10 @@ namespace ChessDefinitions
         /// Type of the player playing as black
         /// </summary>
         PlayerType BlackPlayerType { get; }
+
+        /// <summary>
+        /// Represents the difficulty of the AI chess player
+        /// </summary>
+        AIDifficulty AIPlayerDifficulty {  get; }
     }
 }

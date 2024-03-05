@@ -18,7 +18,7 @@ namespace SqlServerStorage
             if (chessGame == null)
                 return null;
             else
-                return $"{chessGame.Players.WhitePlayerType == PlayerType.Human}@{chessGame.Board.GetFen()}";
+                return $"{chessGame.Players.WhitePlayerType == PlayerType.Human}@{chessGame.Board.GetFen()}@{(int)chessGame.Players.AIPlayerDifficulty}";
         }
 
         public static IChessGame? StringToIChessGame(string? str, IChessGameFactory chessGameFactory)
@@ -30,8 +30,9 @@ namespace SqlServerStorage
                 var splitted = str.Split('@');
                 var isPlayerWhite = bool.Parse(splitted[0]);
                 var fen = splitted[1];
+                var difficulty = (AIDifficulty)int.Parse(splitted[2]);
 
-                var game = chessGameFactory.CreateGameFromFen(new PlayersDescriptor(isPlayerWhite ? PlayerType.Human : PlayerType.AI, !isPlayerWhite ? PlayerType.Human : PlayerType.AI),
+                var game = chessGameFactory.CreateGameFromFen(new PlayersDescriptor(isPlayerWhite ? PlayerType.Human : PlayerType.AI, !isPlayerWhite ? PlayerType.Human : PlayerType.AI, difficulty),
                     fen);
 
                 return game;

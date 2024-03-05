@@ -43,7 +43,7 @@ namespace Tests
 
 
             // Act
-            var result = controller.StartNewGame(gameId, isPlayerWhite, out IChessGameSnapshot? currentGameState);
+            var result = controller.StartNewGame(gameId, isPlayerWhite, AIDifficulty.VeryEasy, out IChessGameSnapshot? currentGameState);
 
             // Assert
             currentGameState.ShouldNotBeNull();
@@ -79,7 +79,7 @@ namespace Tests
                 mockLogger.Object);
 
             // Act
-            var result = controller.StartNewGame(gameId, isPlayerWhite, out IChessGameSnapshot? currentGameState);
+            var result = controller.StartNewGame(gameId, isPlayerWhite, AIDifficulty.VeryEasy, out IChessGameSnapshot? currentGameState);
 
             // Assert
             currentGameState.ShouldNotBeNull();
@@ -174,6 +174,7 @@ namespace Tests
             gameStateMock.Setup(state => state.Board.MakeMove(It.IsAny<string>())).Returns(true);
             gameStateMock.Setup(state => state.Board.GetFen()).Returns("fen");
             gameStateMock.Setup(state => state.GetSnapshot()).Returns(snapshotMock.Object);
+            gameStateMock.Setup(state => state.Players.AIPlayerDifficulty).Returns(AIDifficulty.VeryEasy);
 
             gameHandlerMock.Setup(gh => gh.Game).Returns(gameStateMock.Object);
 

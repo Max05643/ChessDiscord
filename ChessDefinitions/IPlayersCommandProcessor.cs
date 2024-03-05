@@ -34,7 +34,7 @@ namespace ChessDefinitions
         /// </summary>
         /// <param name="gameId">Unique id for the game</param>
         /// <param name="isPlayerWhite">Is player playing as white?</param>
-        CommandResult StartNewGame(string gameId, bool isPlayerWhite);
+        CommandResult StartNewGame(string gameId, bool isPlayerWhite, AIDifficulty aIDifficulty);
 
         /// <summary>
         /// Processes a command to make a move 

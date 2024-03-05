@@ -50,7 +50,7 @@ public class ChessGameController : IChessGamesController
 
                 if (gameHandler.Game.Board.MakeMove(move))
                 {
-                    chessAI.GetNextMove(gameHandler.Game.Board.GetFen(), out string? aiMove);
+                    chessAI.GetNextMove(gameHandler.Game.Board.GetFen(), out string? aiMove, gameHandler.Game.Players.AIPlayerDifficulty.ConvertDifficultyToDepth());
                     gameHandler.Game.Board.MakeMove(aiMove!);
                     currentGameState = gameHandler.Game.GetSnapshot();
                     return IChessGamesController.MoveRequestResult.Success;
@@ -88,14 +88,14 @@ public class ChessGameController : IChessGamesController
         }
     }
 
-    IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, out IChessGameSnapshot? currentGameState)
+    IChessGamesController.NewGameResult IChessGamesController.StartNewGame(string gameId, bool isPlayerWhite, AIDifficulty aIDifficulty, out IChessGameSnapshot? currentGameState)
     {
-        var newGameState = gameFactory.CreateGame(new PlayersDescriptor(isPlayerWhite ? PlayerType.Human : PlayerType.AI, !isPlayerWhite ? PlayerType.Human : PlayerType.AI));
+        var newGameState = gameFactory.CreateGame(new PlayersDescriptor(isPlayerWhite ? PlayerType.Human : PlayerType.AI, !isPlayerWhite ? PlayerType.Human : PlayerType.AI, aIDifficulty));
         try
         {
             if (newGameState.Players.WhitePlayerType == PlayerType.AI)
             {
-                chessAI.GetNextMove(newGameState.Board.GetFen(), out string? aiMove);
+                chessAI.GetNextMove(newGameState.Board.GetFen(), out string? aiMove, newGameState.Players.AIPlayerDifficulty.ConvertDifficultyToDepth());
                 newGameState.Board.MakeMove(aiMove!);
             }
 

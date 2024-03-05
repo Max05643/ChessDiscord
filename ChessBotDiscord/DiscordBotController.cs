@@ -74,6 +74,7 @@ namespace ChessBotDiscord
             newGameCommand.WithName("newgame");
             newGameCommand.WithDescription(localizationProvider.GetLocalizedText("NewGameDesc"));
             newGameCommand.AddOption("isplayerwhite", ApplicationCommandOptionType.Boolean, localizationProvider.GetLocalizedText("IsPlayerWhite"), isRequired: true);
+            newGameCommand.AddOption("aidiff", ApplicationCommandOptionType.Integer, localizationProvider.GetLocalizedText("AIDifficulty"), isRequired: true, minValue: 1, maxValue: 5);
 
             var moveCommand = new SlashCommandBuilder();
             moveCommand.WithName("move");
@@ -133,7 +134,8 @@ namespace ChessBotDiscord
             await command.DeferAsync();
 
             var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
-            var result = playersCommandProcessor.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite);
+            var aiDiff = (AIDifficulty)Math.Clamp((long)(command.Data.Options.First(opt => opt.Name == "aidiff").Value), 1, 5);
+            var result = playersCommandProcessor.StartNewGame(command.ChannelId.ToString()!, isPlayerWhite, aiDiff);
 
             await command.ModifyOriginalResponseAsync((settings) => settings.Embed = BuildEmbed(result));
 

@@ -43,7 +43,7 @@ namespace ChessDefinitions
         /// </summary>
         /// <param name="gameId">Unique id for the game</param>
         /// <param name="isPlayerWhite">Is player playing as white?</param>
-        NewGameResult StartNewGame(string gameId, bool isPlayerWhite, out IChessGameSnapshot? currentGameState);
+        NewGameResult StartNewGame(string gameId, bool isPlayerWhite, AIDifficulty aIDifficulty, out IChessGameSnapshot? currentGameState);
 
         /// <summary>
         /// Tries to make a move in specified game. Will do nothing if operation is impossible. Will set currentGameState to current state of the game if it is possible  

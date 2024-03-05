@@ -14,7 +14,7 @@ namespace Tests
         public void GetCurrentState_InProgressGame_ShouldReturnInProgress()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
 
             // Act
             var currentState = gameState.Board.GetCurrentState();
@@ -27,7 +27,7 @@ namespace Tests
         public void IsWhiteMove_WhiteTurn_ShouldReturnTrue()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
 
             // Act
             var isWhiteMove = gameState.Board.IsWhiteMove();
@@ -40,7 +40,7 @@ namespace Tests
         public void MakeMove_ValidMove_ShouldReturnTrueAndChangeState()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
             var initialFen = gameState.Board.GetFen();
             var validMove = "e2e4";
 
@@ -58,7 +58,7 @@ namespace Tests
         public void MakeMove_InvalidMove_ShouldReturnFalseAndNotChangeState()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
             var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e5"; // Invalid
 
@@ -76,7 +76,7 @@ namespace Tests
         public void MakeMove_InvalidMove_ExceptionThrown_ShouldReturnFalseAndNotChangeState()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
             var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e"; // Invalid format
 
@@ -94,7 +94,7 @@ namespace Tests
         public void MakeMove_InvalidMove_DoesNotChangeState()
         {
             // Arrange
-            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true));
+            IChessGame gameState = new ChessGameState(new PlayersDescriptor(true, AIDifficulty.VeryEasy));
             var initialFen = gameState.Board.GetFen();
             var invalidMove = "e2e5"; // Invalid
 
