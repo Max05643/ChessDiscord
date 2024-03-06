@@ -35,7 +35,21 @@ namespace ChessBotDiscord
         }
 
 
-        private Embed BuildEmbed(IPlayersCommandProcessor.CommandResult commandResult)
+
+        async Task<bool> RespondWithRejectionIfSentOnServer(SocketSlashCommand command)
+        {
+            if (command.Channel.GetChannelType() != ChannelType.DM)
+            {
+                await command.RespondAsync(localizationProvider.GetLocalizedText("DMOnly"));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        Embed BuildEmbed(IPlayersCommandProcessor.CommandResult commandResult)
         {
             var builder = new EmbedBuilder();
             builder.WithDescription(commandResult.Description);
@@ -95,6 +109,7 @@ namespace ChessBotDiscord
         /// </summary>
         Task SlashCommandHandler(SocketSlashCommand command)
         {
+           
             switch (command.CommandName)
             {
                 case "newgame":
@@ -116,9 +131,13 @@ namespace ChessBotDiscord
         /// </summary>
         async Task MakeMove(SocketSlashCommand command)
         {
+           
+            if (await RespondWithRejectionIfSentOnServer(command))
+            {
+                return;
+            }
+
             await command.DeferAsync();
-
-
 
             string playerMove = (string)(command.Data.Options.First(opt => opt.Name == "move").Value);
             var result = playersCommandProcessor.MakeMove(command.ChannelId.ToString()!, playerMove);
@@ -131,6 +150,12 @@ namespace ChessBotDiscord
         /// </summary>
         async Task NewGame(SocketSlashCommand command)
         {
+           
+            if (await RespondWithRejectionIfSentOnServer(command))
+            {
+                return;
+            }
+
             await command.DeferAsync();
 
             var isPlayerWhite = (bool)(command.Data.Options.First(opt => opt.Name == "isplayerwhite").Value);
@@ -146,6 +171,11 @@ namespace ChessBotDiscord
         /// </summary>
         async Task RemoveGame(SocketSlashCommand command)
         {
+            if (await RespondWithRejectionIfSentOnServer(command))
+            {
+                return;
+            }
+
             await command.DeferAsync();
 
             var result = playersCommandProcessor.RemoveGame(command.ChannelId.ToString()!);
